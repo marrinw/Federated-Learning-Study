@@ -1,7 +1,3 @@
-print('fl')
-a=1
-b=3
-c=3
-d=4
-e=-3
-f=3
+import torch
+from torchvision import datasets,transforms
+train_set=datasets.MNIST("data",train=True,download=True)
