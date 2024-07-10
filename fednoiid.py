@@ -4,7 +4,21 @@ import torch.optim as optim
 from torchvision import datasets, transforms
 from copy import deepcopy
 import torch.nn.functional as F
-# 定义一个简单的模型
+class CustomMNISTDataset(torch.utils.data.Dataset):
+    def __init__(self, root, train=True, transform=None, target_transform=None, download=True, target_labels=None):
+        self.dataset = datasets.MNIST(root=root, train=train, transform=transform, target_transform=target_transform, download=download)
+        self.indices = self._filter_dataset(target_labels)
+
+    def _filter_dataset(self, target_labels):
+        indices = [i for i, label in enumerate(self.dataset.targets) if label in target_labels]
+        return indices
+
+    def __len__(self):
+        return len(self.indices)
+
+    def __getitem__(self, idx):
+        return self.dataset[self.indices[idx]]
+    
 class LeNet(nn.Module):
     def __init__(self):
         super(LeNet, self).__init__()
@@ -24,6 +38,7 @@ class LeNet(nn.Module):
         x = torch.relu(self.fc2(x))
         x = self.fc3(x)
         return x
+
 def conv3x3(in_planes, out_planes, stride=1):
     return nn.Conv2d(in_planes, out_planes, kernel_size=3, stride=stride, padding=1, bias=False)
  
@@ -93,13 +108,17 @@ class ResNet(nn.Module):
         return out
  
 def ResNet18():
-    return ResNet(BasicBlock, [2,2,2,2]) 
+    return ResNet(BasicBlock, [2,2,2,2])
+
 
 random_seed = 42
 torch.manual_seed(random_seed)
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-subsets = torch.load('mnist_subsets.pt')
+subsets=[]
+for i in range(10):
+    train_dataset = CustomMNISTDataset(root='./data', train=True, target_labels=[i, (i+1)%10], transform=transforms.ToTensor())
+    subsets.append(train_dataset)
 #global_model = LeNet().to(device)
 global_model = ResNet18().to(device)
 client_models = []
@@ -107,7 +126,7 @@ train_loaders = []
 for i in range(10):
     model = deepcopy(global_model).to(device)
     client_models.append(model)
-    train_loader = torch.utils.data.DataLoader(subsets[i], batch_size=64, shuffle=True)
+    train_loader = torch.utils.data.DataLoader(subsets[i], batch_size=128, shuffle=True)
     train_loaders.append(train_loader)
 
 

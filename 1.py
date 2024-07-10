@@ -1,4 +1,4 @@
-import torch
+"""import torch
 from torchvision import datasets, transforms
 
 # 定义转换
@@ -22,6 +22,11 @@ subsets = torch.utils.data.random_split(mnist_dataset, [subset_size] * 9 + [num_
 subset_list = [subset for subset in subsets]
 
 # 保存所有子集到一个文件
-torch.save(subset_list, 'mnist_subsets.pt')
+torch.save(subset_list, 'mnist_subsets.pt')"""
 
+data=[]
+for i in range(10):
+    data.append([i,(i+1)%10])
 
+for i in range(10):
+    print(data[i])

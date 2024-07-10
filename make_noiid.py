@@ -2,11 +2,12 @@ import numpy as np
 import torch
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader, Subset
+import random
 
 # 设置随机种子以确保结果可复现
 np.random.seed(42)
 torch.manual_seed(42)
-
+random.seed(42)
 
 """l1=np.zeros(10)
 # 定义函数以构造 non-IID 子数据集
